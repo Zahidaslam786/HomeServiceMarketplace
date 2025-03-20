@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Authentication - Login, Signup & Reset Password</title>
+  <!-- Unicons for icons -->
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
+  <style>
+    /* Import Google font - Poppins */
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+    a {
+      text-decoration: none;
+    }
+    
+   
+    body {
+      background: #0e6fb1;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      overflow: hidden; /* Prevent scrollbars if content overflows on larger screens */
+    }
+
+    /* Container for both columns */
+    .auth-container {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Left side: Form */
+    .auth-left {
+      flex: 1; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Right side: The image at the corner */
+    .auth-right {
+      flex: 1; 
+      background: #f3f4f6 url("background.png") no-repeat center right;
+      background-size: contain; 
+      background-color: #0e6fb1;
+    }
+
+    .form_container {
+      position: relative;
+      max-width: 350px;
+      width: 100%;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .form_close {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      color: #0b0217;
+      font-size: 22px;
+      opacity: 0.7;
+      cursor: pointer;
+    }
+    .form_container h2 {
+      font-size: 22px;
+      color: #0b0217;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .input_box {
+      position: relative;
+      margin-top: 20px;
+      width: 100%;
+      height: 40px;
+    }
+    .input_box input {
+      height: 100%;
+      width: 100%;
+      border: none;
+      outline: none;
+      padding: 0 30px;
+      color: #333;
+      transition: all 0.2s ease;
+      border-bottom: 1.5px solid #aaaaaa;
+    }
+    .input_box input:focus {
+      border-color: #7d2ae8;
+    }
+    .input_box i {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      color: #707070;
+    }
+    .input_box i.email,
+    .input_box i.password {
+      left: 0;
+    }
+    .input_box input:focus ~ i.email,
+    .input_box input:focus ~ i.password {
+      color: #7d2ae8;
+    }
+    .input_box i.pw_hide {
+      right: 0;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .option_field {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+    .option_field a {
+      color: #7d2ae8;
+    }
+    .option_field a:hover {
+      text-decoration: underline;
+    }
+    .checkbox {
+      display: flex;
+      column-gap: 8px;
+      white-space: nowrap;
+      align-items: center;
+    }
+    .checkbox input {
+      accent-color: #7d2ae8;
+    }
+    .checkbox label {
+      cursor: pointer;
+      user-select: none;
+      color: #0b0217;
+    }
+    .button {
+      background: #7d2ae8;
+      margin-top: 30px;
+      width: 100%;
+      padding: 10px 0;
+      border: none;
+      color: #fff;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .button:active {
+      transform: scale(0.98);
+    }
+    .login_signup,
+    .login_forget {
+      font-size: 12px;
+      text-align: center;
+      margin-top: 15px;
+    }
+    .login_signup a,
+    .login_forget a {
+      color: #7d2ae8;
+    }
+    .login_signup a:hover,
+    .login_forget a:hover {
+      text-decoration: underline;
+    }
+    /* Hide forms initially */
+    .form {
+      display: none;
+    }
+    .form.active {
+      display: block;
+    }
+
+    /* =========================
+       RESPONSIVE MEDIA QUERY
+       ========================= */
+    @media (max-width: 768px) {
+      body {
+        overflow: auto; /* Allow scrolling on smaller screens */
+        height: auto;   /* Auto height so content can expand */
+      }
+      .auth-container {
+        flex-direction: column;
+        height: auto; /* Let the container grow naturally */
+      }
+      .auth-left,
+      .auth-right {
+        flex: unset;
+        width: 100%;
+        min-height: 300px;
+      }
+      /* The image can be centered or adjusted as needed */
+      .auth-right {
+        background-position: center;
+        background-size: cover; /* or contain, depending on preference */
+      }
+      .form_container {
+        max-width: 90%;
+        margin: 20px auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <!-- LEFT COLUMN: FORM -->
+    <div class="auth-left">
+      <div class="form_container">
+        <i class="uil uil-times form_close" onclick="closeWindow()"></i>
+        
+        <!-- Login Form -->
+        <div class="form" id="login_form">
+          <form action="#" onsubmit="return false;">
+            <h2>Login</h2>
+            <div class="input_box">
+              <input type="email" placeholder="Enter your email" required />
+              <i class="uil uil-envelope-alt email"></i>
+            </div>
+            <div class="input_box">
+              <input type="password" placeholder="Enter your password" required />
+              <i class="uil uil-lock password"></i>
+              <i class="uil uil-eye-slash pw_hide"></i>
+            </div>
+            <div class="option_field">
+              <span class="checkbox">
+                <input type="checkbox" id="check" />
+                <label for="check">Remember me</label>
+              </span>
+              <a href="#" id="show_forget">Forgot password?</a>
+            </div>
+            <button class="button">Login Now</button>
+            <div class="login_signup">Don't have an account? <a href="#" id="show_signup">Signup</a></div>
+          </form>
+        </div>
+        
+        <!-- Signup Form -->
+        <div class="form" id="signup_form">
+          <form action="#" onsubmit="return false;">
+            <h2>Signup</h2>
+            <div class="input_box">
+              <input type="email" placeholder="Enter your email" required />
+              <i class="uil uil-envelope-alt email"></i>
+            </div>
+            <div class="input_box">
+              <input type="password" placeholder="Create password" required />
+              <i class="uil uil-lock password"></i>
+              <i class="uil uil-eye-slash pw_hide"></i>
+            </div>
+            <div class="input_box">
+              <input type="password" placeholder="Confirm password" required />
+              <i class="uil uil-lock password"></i>
+              <i class="uil uil-eye-slash pw_hide"></i>
+            </div>
+            <button class="button">Signup Now</button>
+            <div class="login_signup">Already have an account? <a href="#" id="show_login">Login</a></div>
+          </form>
+        </div>
+        
+        <!-- Reset Password Form -->
+        <div class="form" id="forget_form">
+          <form action="#" onsubmit="return false;">
+            <h2>Reset Password</h2>
+            <div class="input_box">
+              <input type="email" placeholder="Enter your registered email" required />
+              <i class="uil uil-envelope-alt email"></i>
+            </div>
+            <button class="button">Send Reset Link</button>
+            <div class="login_forget">Remembered? <a href="#" id="back_to_login">Back to Login</a></div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: IMAGE -->
+    <div class="auth-right">
+      <!-- The background image is set in CSS above -->
+    </div>
+  </div>
+
+  <script>
+    // Close button: redirect to main site
+    function closeWindow() {
+      window.location.href = "index.html";
+    }
+    
+    // Elements for the forms
+    const loginForm = document.getElementById("login_form");
+    const signupForm = document.getElementById("signup_form");
+    const forgetForm = document.getElementById("forget_form");
+    
+    // Show the selected form, hide the others
+    function showForm(form) {
+      loginForm.classList.remove("active");
+      signupForm.classList.remove("active");
+      forgetForm.classList.remove("active");
+      form.classList.add("active");
+    }
+    
+    // Check URL query parameter to determine initial mode
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode");
+    if (mode === "signup") {
+      showForm(signupForm);
+    } else {
+      showForm(loginForm);
+    }
+    
+    // Toggle between forms
+    document.getElementById("show_signup").addEventListener("click", function(e) {
+      e.preventDefault();
+      showForm(signupForm);
+    });
+    
+    document.getElementById("show_login").addEventListener("click", function(e) {
+      e.preventDefault();
+      showForm(loginForm);
+    });
+    
+    document.getElementById("show_forget").addEventListener("click", function(e) {
+      e.preventDefault();
+      showForm(forgetForm);
+    });
+    
+    document.getElementById("back_to_login").addEventListener("click", function(e) {
+      e.preventDefault();
+      showForm(loginForm);
+    });
+    
+    // Password show/hide functionality
+    const pwHideIcons = document.querySelectorAll(".pw_hide");
+    pwHideIcons.forEach((icon) => {
+      icon.addEventListener("click", () => {
+        const inputField = icon.parentElement.querySelector("input");
+        if (inputField.type === "password") {
+          inputField.type = "text";
+          icon.classList.replace("uil-eye-slash", "uil-eye");
+        } else {
+          inputField.type = "password";
+          icon.classList.replace("uil-eye", "uil-eye-slash");
+        }
+      });
+    });
+  </script>
+</body>
+</html>
